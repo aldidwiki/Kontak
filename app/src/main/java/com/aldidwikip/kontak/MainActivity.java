@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     ApiInterface mApiInterface;
     SwipeRefreshLayout swipeRefreshLayout;
     NoInternetDialog noInternetDialog;
+    List<Kontak> KontakList;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recyclerView);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
 
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         kontakCall.enqueue(new Callback<GetKontak>() {
             @Override
             public void onResponse(Call<GetKontak> call, Response<GetKontak> response) {
-                List<Kontak> KontakList = response.body().getListDataKontak();
+                KontakList = response.body().getListDataKontak();
                 Log.d("Retrofit Get", "Jumlah data Kontak: " + KontakList.size());
                 mAdapter = new KontakAdapter(ma, KontakList);
                 mRecyclerView.setAdapter(mAdapter);
@@ -155,4 +158,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            KontakList.remove(viewHolder.getAdapterPosition());
+            mAdapter.notifyDataSetChanged();
+            Toast.makeText(getApplicationContext(), "Item Deleted", Toast.LENGTH_SHORT).show();
+        }
+    };
 }

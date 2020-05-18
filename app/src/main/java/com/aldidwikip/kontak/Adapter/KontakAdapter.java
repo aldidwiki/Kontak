@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,7 +46,7 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
                 .error(R.drawable.ic_person_black_24dp)
                 .into(holder.mImgavatar);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.mKontakParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent mIntent = new Intent(view.getContext(), EditActivity.class);
@@ -67,9 +68,11 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView mTextViewNama, mTextViewNomor, mTextViewAlamat;
         CircleImageView mImgavatar;
+        LinearLayout mKontakParent;
 
         public MyViewHolder(View itemView) {
             super(itemView);
+            mKontakParent = itemView.findViewById(R.id.kontakParent);
             mTextViewNama = itemView.findViewById(R.id.tvNama);
             mTextViewNomor = itemView.findViewById(R.id.tvNomor);
             mTextViewAlamat = itemView.findViewById(R.id.tvAlamat);
