@@ -69,10 +69,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         swipeRefreshLayout.setColorSchemeColors(
-                getResources().getColor(android.R.color.holo_blue_bright),
-                getResources().getColor(android.R.color.holo_green_light),
-                getResources().getColor(android.R.color.holo_orange_light),
-                getResources().getColor(android.R.color.holo_red_light)
+                getResources().getColor(R.color.colorPrimary)
         );
 
         btIns = findViewById(R.id.btIns);
