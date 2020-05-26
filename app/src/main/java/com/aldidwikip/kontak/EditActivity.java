@@ -56,7 +56,7 @@ public class EditActivity extends AppCompatActivity {
         Glide
                 .with(this)
                 .load(mIntent.getStringExtra("Avatar"))
-                .error(R.drawable.ic_person_black_24dp)
+                .error(R.drawable.ic_person_24dp)
                 .into(avatarView);
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);

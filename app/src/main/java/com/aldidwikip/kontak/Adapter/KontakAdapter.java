@@ -43,7 +43,7 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
         Glide
                 .with(mContext)
                 .load(mKontakList.get(position).getAvatar())
-                .error(R.drawable.ic_person_black_24dp)
+                .error(R.drawable.ic_person_24dp)
                 .into(holder.mImgavatar);
 
         holder.mKontakParent.setOnClickListener(new View.OnClickListener() {
