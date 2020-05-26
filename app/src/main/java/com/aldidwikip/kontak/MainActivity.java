@@ -21,6 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.aldidwikip.kontak.Adapter.KontakAdapter;
 import com.aldidwikip.kontak.Model.GetKontak;
 import com.aldidwikip.kontak.Model.Kontak;
+import com.aldidwikip.kontak.Model.PostPutDelKontak;
 import com.aldidwikip.kontak.Rest.ApiClient;
 import com.aldidwikip.kontak.Rest.ApiInterface;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }, 1500);
+                }, 1000);
             }
         });
 
@@ -164,9 +165,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            KontakList.remove(viewHolder.getAdapterPosition());
+            int position = viewHolder.getAdapterPosition();
+            String delId = KontakList.get(position).getId();
+            KontakList.remove(position);
             mAdapter.notifyDataSetChanged();
-            Toast.makeText(getApplicationContext(), "Item Deleted", Toast.LENGTH_SHORT).show();
+            deleteKontak(delId);
         }
     };
+
+    private void deleteKontak(String delId) {
+        Call<PostPutDelKontak> deleteKontak = mApiInterface.deleteKontak(delId);
+        deleteKontak.enqueue(new Callback<PostPutDelKontak>() {
+            @Override
+            public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
+                Toast.makeText(getApplicationContext(), "Deleted", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Error Delete", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }

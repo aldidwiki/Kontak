@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -32,7 +31,6 @@ import retrofit2.Response;
 public class EditActivity extends AppCompatActivity {
     TextInputEditText edtNama, edtNomor, edtAlamat;
     CircleImageView avatarView;
-    Button btDelete;
     ApiInterface mApiInterface;
     String mediaPath, Id;
     Intent mIntent;
@@ -62,27 +60,6 @@ public class EditActivity extends AppCompatActivity {
                 .into(avatarView);
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
-
-        btDelete = findViewById(R.id.btDelete2);
-        btDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Call<PostPutDelKontak> deleteKontak = mApiInterface.deleteKontak(Id);
-                deleteKontak.enqueue(new Callback<PostPutDelKontak>() {
-                    @Override
-                    public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
-                        MainActivity.ma.refresh();
-                        Toast.makeText(getApplicationContext(), "Deleted", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-
-                    @Override
-                    public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(), "Error Delete", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
 
         avatarView.setOnClickListener(new View.OnClickListener() {
             @Override
