@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aldidwikip.kontak.EditActivity;
 import com.aldidwikip.kontak.Model.Kontak;
 import com.aldidwikip.kontak.R;
+import com.aldidwikip.kontak.Utils.CustomDialog;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
         holder.mTextViewNama.setText("Nama = " + mKontakList.get(position).getNama());
         holder.mTextViewNomor.setText("Nomor = " + mKontakList.get(position).getNomor());
         holder.mTextViewAlamat.setText("Alamat = " + mKontakList.get(position).getAlamat());
@@ -58,6 +59,16 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
                 view.getContext().startActivity(mIntent);
             }
         });
+        holder.mImgavatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CustomDialog customDialog = new CustomDialog(
+                        mContext,
+                        mKontakList.get(position).getAvatar(),
+                        mKontakList.get(position).getId());
+                customDialog.show();
+            }
+        });
     }
 
     @Override
@@ -68,7 +79,7 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView mTextViewNama, mTextViewNomor, mTextViewAlamat;
         CircleImageView mImgavatar;
-        LinearLayout mKontakParent;
+        RelativeLayout mKontakParent;
 
         public MyViewHolder(View itemView) {
             super(itemView);

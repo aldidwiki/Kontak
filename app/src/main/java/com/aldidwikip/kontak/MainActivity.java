@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void deleteKontak(String delId) {
+    public void deleteKontak(String delId) {
         Call<PostPutDelKontak> deleteKontak = mApiInterface.deleteKontak(delId);
         deleteKontak.enqueue(new Callback<PostPutDelKontak>() {
             @Override
