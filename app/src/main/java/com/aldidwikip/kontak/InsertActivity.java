@@ -13,11 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.aldidwikip.kontak.Model.PostPutDelKontak;
 import com.aldidwikip.kontak.Rest.ApiClient;
 import com.aldidwikip.kontak.Rest.ApiInterface;
+import com.aldidwikip.kontak.Utils.CustomBottomSheetDialog;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
@@ -27,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class InsertActivity extends AppCompatActivity {
+public class InsertActivity extends AppCompatActivity implements CustomBottomSheetDialog.ItemClickListener {
     TextInputEditText edtNama, edtNomor, edtAlamat;
     CircleImageView avatarView;
     ApiInterface mApiInterface;
@@ -38,6 +40,7 @@ public class InsertActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         edtNama = findViewById(R.id.edtNama);
         edtNomor = findViewById(R.id.edtNomor);
@@ -46,15 +49,11 @@ public class InsertActivity extends AppCompatActivity {
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         avatarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImagePicker.Companion.with(InsertActivity.this)
-                        .galleryOnly()
-                        .compress(1024)
-                        .start();
+                CustomBottomSheetDialog bottomSheetDialog = CustomBottomSheetDialog.newInstance();
+                bottomSheetDialog.show(getSupportFragmentManager(), "Bottom Sheet");
             }
         });
     }
@@ -64,7 +63,10 @@ public class InsertActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
             mediaPath = ImagePicker.Companion.getFilePath(data);
-            Glide.with(this).load(data.getData()).into(avatarView);
+            Glide.with(this)
+                    .load(data.getData())
+                    .placeholder(R.drawable.ic_person_24dp)
+                    .into(avatarView);
             Toast.makeText(getApplicationContext(), mediaPath, Toast.LENGTH_SHORT).show();
         }
     }
@@ -143,5 +145,12 @@ public class InsertActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onItemClick(int item) {
+        if (item == R.id.removePhoto) {
+            Glide.with(getApplicationContext()).clear(avatarView);
+        }
     }
 }

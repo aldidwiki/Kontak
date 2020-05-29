@@ -37,25 +37,31 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        holder.mTextViewNama.setText("Nama = " + mKontakList.get(position).getNama());
-        holder.mTextViewNomor.setText("Nomor = " + mKontakList.get(position).getNomor());
-        holder.mTextViewAlamat.setText("Alamat = " + mKontakList.get(position).getAlamat());
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
+        final String idKontak = mKontakList.get(position).getId();
+        final String namaKontak = mKontakList.get(position).getNama();
+        final String nomorKontak = mKontakList.get(position).getNomor();
+        final String alamatKontak = mKontakList.get(position).getAlamat();
+        final String avatarKontak = mKontakList.get(position).getAvatar();
+
+        holder.mTextViewNama.setText(namaKontak);
+        holder.mTextViewNomor.setText(nomorKontak);
+        holder.mTextViewAlamat.setText(alamatKontak);
         Glide
                 .with(mContext)
-                .load(mKontakList.get(position).getAvatar())
-                .error(R.drawable.ic_person_24dp)
+                .load(avatarKontak)
+                .placeholder(R.drawable.ic_person_24dp)
                 .into(holder.mImgavatar);
 
         holder.mKontakParent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent mIntent = new Intent(view.getContext(), EditActivity.class);
-                mIntent.putExtra("Id", mKontakList.get(position).getId());
-                mIntent.putExtra("Nama", mKontakList.get(position).getNama());
-                mIntent.putExtra("Nomor", mKontakList.get(position).getNomor());
-                mIntent.putExtra("Alamat", mKontakList.get(position).getAlamat());
-                mIntent.putExtra("Avatar", mKontakList.get(position).getAvatar());
+                mIntent.putExtra("Id", idKontak);
+                mIntent.putExtra("Nama", namaKontak);
+                mIntent.putExtra("Nomor", nomorKontak);
+                mIntent.putExtra("Alamat", alamatKontak);
+                mIntent.putExtra("Avatar", avatarKontak);
                 view.getContext().startActivity(mIntent);
             }
         });
@@ -64,8 +70,11 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
             public void onClick(View v) {
                 CustomDialog customDialog = new CustomDialog(
                         mContext,
-                        mKontakList.get(position).getAvatar(),
-                        mKontakList.get(position).getId());
+                        idKontak,
+                        namaKontak,
+                        nomorKontak,
+                        alamatKontak,
+                        avatarKontak);
                 customDialog.show();
             }
         });

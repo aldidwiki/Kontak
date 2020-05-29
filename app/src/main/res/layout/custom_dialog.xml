@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/fullAvatar"
-        android:layout_width="wrap_content"
-        android:layout_height="220dp"
-        android:layout_gravity="center"
+        android:id="@+id/avatarDialog"
+        android:layout_width="225dp"
+        android:layout_height="225dp"
+        android:layout_centerHorizontal="true"
         android:src="@drawable/ic_person_24dp" />
 
+    <TextView
+        android:id="@+id/tvNamaDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#8000"
+        android:paddingStart="15dp"
+        android:text="Your Name"
+        android:textColor="@color/white"
+        android:textSize="24sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_below="@id/avatarDialog"
         android:background="@color/colorPrimary"
         android:orientation="horizontal">
 
@@ -39,4 +48,4 @@
     </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>
