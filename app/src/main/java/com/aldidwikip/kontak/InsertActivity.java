@@ -96,11 +96,11 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
         String strNomor = edtNomor.getText().toString();
         String strAlamat = edtAlamat.getText().toString();
 
-        if (mediaPath == null) {
-            strAvatar = "";
-        } else {
+        if (mediaPath != null) {
             uploadImage();
             strAvatar = file.getName();
+        } else {
+            strAvatar = "";
         }
 
         if (TextUtils.isEmpty(strNama)) {
@@ -150,7 +150,8 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
     @Override
     public void onItemClick(int item) {
         if (item == R.id.removePhoto) {
-            Glide.with(getApplicationContext()).clear(avatarView);
+            Glide.with(this).clear(avatarView);
+            mediaPath = null;
         }
     }
 }

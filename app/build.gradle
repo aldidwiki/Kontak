@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.squareup.retrofit2:retrofit:2.6.4'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.4'
+    implementation "com.squareup.okhttp3:okhttp:4.7.2"
 
     //circleImageView
     implementation 'de.hdodenhof:circleimageview:3.1.0'
@@ -55,5 +56,8 @@ dependencies {
 
     //recyclerView Swipe Decoration
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.2'
+
+    //skeletonLayout
+    implementation 'com.faltenreich:skeletonlayout:2.0.1'
 }
 

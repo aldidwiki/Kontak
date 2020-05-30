@@ -28,6 +28,8 @@ import com.aldidwikip.kontak.Model.Kontak;
 import com.aldidwikip.kontak.Model.PostPutDelKontak;
 import com.aldidwikip.kontak.Rest.ApiClient;
 import com.aldidwikip.kontak.Rest.ApiInterface;
+import com.faltenreich.skeletonlayout.Skeleton;
+import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -52,20 +54,36 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     public static MainActivity ma;
     private static final int STORAGE_PERMISSION_CODE = 123;
+    private Skeleton skeleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mApiInterface = ApiClient.getClient().create(ApiInterface.class);
         requestStoragePermission();
+        initRecyclerView();
+        initSkeleton();
+        initSwipeRefreshLayout();
 
+        btIns = findViewById(R.id.btIns);
+        btIns.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, InsertActivity.class));
+            }
+        });
+
+        ma = this;
+    }
+
+    private void initSwipeRefreshLayout() {
         swipeRefreshLayout = findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 refresh();
-
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -77,20 +95,11 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setColorSchemeColors(
                 getResources().getColor(R.color.colorPrimary)
         );
+    }
 
-        btIns = findViewById(R.id.btIns);
-        btIns.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, InsertActivity.class));
-            }
-        });
-
-        mApiInterface = ApiClient.getClient().create(ApiInterface.class);
-        initRecyclerView();
-
-        ma = this;
-        refresh();
+    private void initSkeleton() {
+        skeleton = SkeletonLayoutUtils.applySkeleton(mRecyclerView, R.layout.kontak_list, 10);
+        skeleton.setShimmerDurationInMillis(1000);
     }
 
     private void initRecyclerView() {
@@ -111,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         noInternetDialog = builder.build();
+        skeleton.showSkeleton();
     }
 
     @Override
@@ -125,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         Call<GetKontak> kontakCall = mApiInterface.getKontak();
         kontakCall.enqueue(new Callback<GetKontak>() {
             @Override
-            public void onResponse(Call<GetKontak> call, Response<GetKontak> response) {
+            public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
                 KontakList = response.body().getListDataKontak();
                 Log.d("Retrofit Get", "Jumlah data Kontak: " + KontakList.size());
                 mAdapter = new KontakAdapter(ma, KontakList);
@@ -196,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                         deleteKontak(delId);
                     }
                 }
-
             });
         }
 
@@ -216,12 +225,13 @@ public class MainActivity extends AppCompatActivity {
         Call<PostPutDelKontak> deleteKontak = mApiInterface.deleteKontak(delId);
         deleteKontak.enqueue(new Callback<PostPutDelKontak>() {
             @Override
-            public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
+            public void onResponse(@NonNull Call<PostPutDelKontak> call, @NonNull Response<PostPutDelKontak> response) {
                 Toast.makeText(getApplicationContext(), "Deleted from Database", Toast.LENGTH_SHORT).show();
+                Log.d("Delete Kontak", "onResponse: Deleted from Database");
             }
 
             @Override
-            public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
+            public void onFailure(@NonNull Call<PostPutDelKontak> call, @NonNull Throwable t) {
                 Toast.makeText(getApplicationContext(), "Error Delete", Toast.LENGTH_LONG).show();
             }
         });
