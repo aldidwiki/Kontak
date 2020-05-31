@@ -14,6 +14,8 @@ import com.aldidwikip.kontak.R;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.io.File;
+
 public class CustomBottomSheetDialog extends BottomSheetDialogFragment implements View.OnClickListener {
 
     private ItemClickListener mListener;
@@ -25,7 +27,7 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        return inflater.inflate(com.aldidwikip.kontak.R.layout.bottom_sheet, container, false);
+        return inflater.inflate(R.layout.bottom_sheet, container, false);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof ItemClickListener) {
             mListener = (ItemClickListener) context;
@@ -57,12 +59,18 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
 
     @Override
     public void onClick(View v) {
+        String pathName = "/" + "temp_Compressed Image";
+        File rootPath = new File(String.valueOf(v.getContext().getExternalFilesDir(pathName)));
         switch (v.getId()) {
             case R.id.removePhoto:
                 mListener.onItemClick(R.id.removePhoto);
                 break;
             case R.id.gallery:
-                ImagePicker.Companion.with(this).galleryOnly().compress(1024).start();
+                ImagePicker.Companion.with(this)
+                        .galleryOnly()
+                        .compress(1024)
+                        .saveDir(rootPath)
+                        .start();
                 break;
             default:
                 break;

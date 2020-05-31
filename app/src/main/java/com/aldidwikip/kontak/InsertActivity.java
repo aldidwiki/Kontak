@@ -33,7 +33,7 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
     TextInputEditText edtNama, edtNomor, edtAlamat;
     CircleImageView avatarView;
     ApiInterface mApiInterface;
-    String mediaPath;
+    String mediaPath, pathName;
     File file;
 
     @Override
@@ -121,7 +121,7 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
 
                 @Override
                 public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), "Error Insert", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error Insert", Toast.LENGTH_SHORT).show();
                 }
             });
         }

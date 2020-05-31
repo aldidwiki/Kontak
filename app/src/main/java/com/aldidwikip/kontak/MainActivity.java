@@ -155,11 +155,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
+        if (ActivityCompat.shouldShowRequestPermissionRationale
+                (this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        ) {
+            //explain why this permission is required
         }
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                STORAGE_PERMISSION_CODE);
     }
 
     @Override

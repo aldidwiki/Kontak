@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aldidwikip.kontak.EditActivity;
@@ -68,14 +70,16 @@ public class KontakAdapter extends RecyclerView.Adapter<KontakAdapter.MyViewHold
         holder.mImgavatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CustomDialog customDialog = new CustomDialog(
-                        mContext,
+                AppCompatActivity appCompatActivity = (AppCompatActivity) mContext;
+                FragmentManager fragmentManager = appCompatActivity.getSupportFragmentManager();
+                CustomDialog customDialog = CustomDialog.newInstance(
                         idKontak,
                         namaKontak,
                         nomorKontak,
                         alamatKontak,
-                        avatarKontak);
-                customDialog.show();
+                        avatarKontak
+                );
+                customDialog.show(fragmentManager, "Dialog Fragment");
             }
         });
     }

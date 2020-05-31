@@ -37,7 +37,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
     TextInputEditText edtNama, edtNomor, edtAlamat;
     CircleImageView avatarView;
     ApiInterface mApiInterface;
-    String mediaPath, Id;
+    String mediaPath, Id, pathName;
     Intent mIntent;
     File file;
     private Boolean imgRemoved = FALSE;
@@ -144,7 +144,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
 
                 @Override
                 public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), "Error Update", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error Update", Toast.LENGTH_SHORT).show();
                 }
             });
         }
