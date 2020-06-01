@@ -63,7 +63,28 @@
                 android:textColor="@color/black" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_photo_camera_24"
+                android:tint="@color/flat_blue_2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Camera"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
     </LinearLayout>
-
-
 </LinearLayout>

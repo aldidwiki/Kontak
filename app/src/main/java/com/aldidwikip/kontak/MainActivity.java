@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     public static MainActivity ma;
     private static final int STORAGE_PERMISSION_CODE = 123;
+    private static final int CAMERA_PERMISSION_CODE = 124;
     private Skeleton skeleton;
 
     @Override
@@ -62,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
-        requestStoragePermission();
+//        requestStoragePermission();
+//        requestCameraPermission();
         initRecyclerView();
         initSkeleton();
         initSwipeRefreshLayout();
@@ -167,17 +169,21 @@ public class MainActivity extends AppCompatActivity {
                 STORAGE_PERMISSION_CODE);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == STORAGE_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-            }
+    private void requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            return;
         }
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale
+                (this, Manifest.permission.CAMERA)
+        ) {
+            //explain why this permission is required
+        }
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.CAMERA},
+                CAMERA_PERMISSION_CODE);
     }
 
     Kontak kontakPosition = null;

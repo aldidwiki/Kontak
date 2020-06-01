@@ -36,8 +36,10 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
 
         LinearLayout removePhoto = view.findViewById(R.id.removePhoto);
         LinearLayout gallery = view.findViewById(R.id.gallery);
+        LinearLayout camera = view.findViewById(R.id.camera);
         removePhoto.setOnClickListener(this);
         gallery.setOnClickListener(this);
+        camera.setOnClickListener(this);
     }
 
     @Override
@@ -72,6 +74,12 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
                         .saveDir(rootPath)
                         .start();
                 break;
+            case R.id.camera:
+                ImagePicker.Companion.with(this)
+                        .cameraOnly()
+                        .compress(100)
+                        .saveDir(rootPath)
+                        .start();
             default:
                 break;
         }
