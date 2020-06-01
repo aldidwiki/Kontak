@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -17,6 +19,8 @@ import com.aldidwikip.kontak.Rest.ApiInterface;
 import com.aldidwikip.kontak.Utils.CustomBottomSheetDialog;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -37,9 +41,10 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
     TextInputEditText edtNama, edtNomor, edtAlamat;
     CircleImageView avatarView;
     ApiInterface mApiInterface;
-    String mediaPath, Id, pathName;
+    String mediaPath, Id;
     Intent mIntent;
     File file;
+    FrameLayout flLoadingEdit;
     private Boolean imgRemoved = FALSE;
 
     @Override
@@ -74,6 +79,8 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
                 bottomSheetDialog.show(getSupportFragmentManager(), "Bottom Sheet");
             }
         });
+
+        initLoadingAnimation();
     }
 
     @Override
@@ -102,6 +109,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         switch (IdMenu) {
             case R.id.icon_save:
                 EditKontak();
+                flLoadingEdit.setVisibility(View.VISIBLE);
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -137,9 +145,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             updateKontakCall.enqueue(new Callback<PostPutDelKontak>() {
                 @Override
                 public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
-                    MainActivity.ma.refresh();
                     Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT).show();
-                    finish();
                 }
 
                 @Override
@@ -161,6 +167,9 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             @Override
             public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                 Toast.makeText(getApplicationContext(), "Upload Success", Toast.LENGTH_SHORT).show();
+                flLoadingEdit.setVisibility(View.GONE);
+                MainActivity.ma.refresh();
+                finish();
             }
 
             @Override
@@ -177,5 +186,12 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             mediaPath = null;
             imgRemoved = TRUE;
         }
+    }
+
+    private void initLoadingAnimation() {
+        ProgressBar progressBar = findViewById(R.id.spin_kit);
+        Sprite doubleBounce = new Circle();
+        progressBar.setIndeterminateDrawable(doubleBounce);
+        flLoadingEdit = findViewById(R.id.flLoadingEdit);
     }
 }

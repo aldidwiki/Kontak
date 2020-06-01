@@ -68,7 +68,7 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
             case R.id.gallery:
                 ImagePicker.Companion.with(this)
                         .galleryOnly()
-                        .compress(1024)
+                        .compress(100)
                         .saveDir(rootPath)
                         .start();
                 break;

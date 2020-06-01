@@ -59,5 +59,8 @@ dependencies {
 
     //skeletonLayout
     implementation 'com.faltenreich:skeletonlayout:2.0.1'
+
+    //Spin Kit Animation
+    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 }
 
