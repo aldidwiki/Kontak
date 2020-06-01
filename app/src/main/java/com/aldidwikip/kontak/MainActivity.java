@@ -1,8 +1,6 @@
 package com.aldidwikip.kontak;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -48,13 +45,11 @@ public class MainActivity extends AppCompatActivity {
     ApiInterface mApiInterface;
     SwipeRefreshLayout swipeRefreshLayout;
     NoInternetDialog noInternetDialog;
-    List<Kontak> KontakList;
+    List<Kontak> KontakList, searchList;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public static MainActivity ma;
-    private static final int STORAGE_PERMISSION_CODE = 123;
-    private static final int CAMERA_PERMISSION_CODE = 124;
     private Skeleton skeleton;
 
     @Override
@@ -63,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
-//        requestStoragePermission();
-//        requestCameraPermission();
+
         initRecyclerView();
         initSkeleton();
         initSwipeRefreshLayout();
+        refresh();
 
         btIns = findViewById(R.id.btIns);
         btIns.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private void initSkeleton() {
         skeleton = SkeletonLayoutUtils.applySkeleton(mRecyclerView, R.layout.kontak_list, 10);
         skeleton.setShimmerDurationInMillis(1000);
+        skeleton.showSkeleton();
     }
 
     private void initRecyclerView() {
@@ -118,11 +114,10 @@ public class MainActivity extends AppCompatActivity {
         builder.setConnectionCallback(new ConnectionCallback() {
             @Override
             public void hasActiveConnection(boolean b) {
-                refresh();
+
             }
         });
         noInternetDialog = builder.build();
-        skeleton.showSkeleton();
     }
 
     @Override
@@ -140,8 +135,10 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
                 KontakList = response.body().getListDataKontak();
                 Log.d("Retrofit Get", "Jumlah data Kontak: " + KontakList.size());
+                skeleton.showOriginal();
                 mAdapter = new KontakAdapter(ma, KontakList);
                 mRecyclerView.setAdapter(mAdapter);
+
             }
 
             @Override
@@ -152,42 +149,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale
-                (this, Manifest.permission.READ_EXTERNAL_STORAGE)
-        ) {
-            //explain why this permission is required
-        }
-
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                STORAGE_PERMISSION_CODE);
-    }
-
-    private void requestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale
-                (this, Manifest.permission.CAMERA)
-        ) {
-            //explain why this permission is required
-        }
-
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.CAMERA},
-                CAMERA_PERMISSION_CODE);
-    }
-
     Kontak kontakPosition = null;
-
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -251,21 +213,55 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        MenuItem item = menu.findItem(R.id.action_search);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
 
-        SearchView searchView = (SearchView) item.getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Cari Nama");
+        searchView.setIconified(false);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        searchKontak(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        searchKontak(newText);
+                        return true;
+                    }
+                });
+                return true;
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                refresh();
+                return true;
             }
         });
-
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void searchKontak(String keyword) {
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        Call<GetKontak> callSearch = mApiInterface.searchKontak(keyword);
+        callSearch.enqueue(new Callback<GetKontak>() {
+            @Override
+            public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
+                assert response.body() != null;
+                mRecyclerView.setVisibility(View.VISIBLE);
+                searchList = response.body().getListDataKontak();
+                mAdapter = new KontakAdapter(ma, searchList);
+                mRecyclerView.setAdapter(mAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<GetKontak> call, Throwable t) {
+            }
+        });
     }
 }

@@ -18,6 +18,10 @@ public interface ApiInterface {
     @GET("kontak_android")
     Call<GetKontak> getKontak();
 
+    @FormUrlEncoded
+    @POST("kontak_android")
+    Call<GetKontak> searchKontak(@Field("keyword") String keyword);
+
     @Multipart
     @POST("kontak")
     Call<PostPutDelKontak> uploadFile(@Part MultipartBody.Part file);
