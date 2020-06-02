@@ -19,6 +19,7 @@ import com.aldidwikip.kontak.Rest.ApiInterface;
 import com.aldidwikip.kontak.Utils.CustomBottomSheetDialog;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.material.textfield.TextInputEditText;
@@ -45,6 +46,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
     Intent mIntent;
     File file;
     FrameLayout flLoadingEdit;
+    SpinKitView spinKitView;
     private Boolean imgRemoved = FALSE;
 
     @Override
@@ -79,8 +81,6 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
                 bottomSheetDialog.show(getSupportFragmentManager(), "Bottom Sheet");
             }
         });
-
-        initLoadingAnimation();
     }
 
     @Override
@@ -109,10 +109,12 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         switch (IdMenu) {
             case R.id.icon_save:
                 EditKontak();
-                flLoadingEdit.setVisibility(View.VISIBLE);
                 break;
             case android.R.id.home:
                 onBackPressed();
+                break;
+            default:
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -124,16 +126,6 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         String strNomor = edtNomor.getText().toString();
         String strAlamat = edtAlamat.getText().toString();
 
-        if (mediaPath != null) {
-            uploadImage();
-            strAvatar = file.getName();
-        } else if (imgRemoved) {
-            strAvatar = "Image Removed";
-        } else {
-            String fieldAvatar = mIntent.getStringExtra("Avatar");
-            strAvatar = fieldAvatar.substring(fieldAvatar.lastIndexOf("/") + 1);
-        }
-
         if (TextUtils.isEmpty(strNama)) {
             edtNama.setError("Column Can't be Empty");
         } else if (TextUtils.isEmpty(strNomor)) {
@@ -141,16 +133,35 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         } else if (TextUtils.isEmpty(strAlamat)) {
             edtAlamat.setError("Column Can't be Empty");
         } else {
+            showLoadingAnimation();
+
+            if (mediaPath != null) {
+                uploadImage();
+                strAvatar = file.getName();
+            } else if (imgRemoved) {
+                strAvatar = "Image Removed";
+            } else {
+                String fieldAvatar = mIntent.getStringExtra("Avatar");
+                strAvatar = fieldAvatar.substring(fieldAvatar.lastIndexOf("/") + 1);
+            }
             Call<PostPutDelKontak> updateKontakCall = mApiInterface.putKontak(Id, strNama, strNomor, strAlamat, strAvatar);
             updateKontakCall.enqueue(new Callback<PostPutDelKontak>() {
                 @Override
                 public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                     Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT).show();
+                    if (mediaPath == null || imgRemoved) {
+                        hideLoadingAnimation();
+                        MainActivity.ma.refresh();
+                        finish();
+                    }
                 }
 
                 @Override
                 public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                     Toast.makeText(getApplicationContext(), "Error Update", Toast.LENGTH_SHORT).show();
+                    if (mediaPath == null || imgRemoved) {
+                        hideLoadingAnimation();
+                    }
                 }
             });
         }
@@ -167,7 +178,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             @Override
             public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                 Toast.makeText(getApplicationContext(), "Upload Success", Toast.LENGTH_SHORT).show();
-                flLoadingEdit.setVisibility(View.GONE);
+                hideLoadingAnimation();
                 MainActivity.ma.refresh();
                 finish();
             }
@@ -175,6 +186,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             @Override
             public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
+                hideLoadingAnimation();
             }
         });
     }
@@ -189,9 +201,22 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
     }
 
     private void initLoadingAnimation() {
-        ProgressBar progressBar = findViewById(R.id.spin_kit);
+        flLoadingEdit = findViewById(R.id.flLoadingEdit);
+        spinKitView = findViewById(R.id.spin_kit);
+        ProgressBar progressBar = spinKitView;
         Sprite doubleBounce = new Circle();
         progressBar.setIndeterminateDrawable(doubleBounce);
-        flLoadingEdit = findViewById(R.id.flLoadingEdit);
+    }
+
+    private void showLoadingAnimation() {
+        initLoadingAnimation();
+        flLoadingEdit.setVisibility(View.VISIBLE);
+        spinKitView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoadingAnimation() {
+        initLoadingAnimation();
+        flLoadingEdit.setVisibility(View.GONE);
+        spinKitView.setVisibility(View.GONE);
     }
 }

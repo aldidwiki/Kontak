@@ -18,6 +18,7 @@ import com.aldidwikip.kontak.Rest.ApiInterface;
 import com.aldidwikip.kontak.Utils.CustomBottomSheetDialog;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.material.textfield.TextInputEditText;
@@ -40,6 +41,7 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
     String mediaPath;
     File file;
     FrameLayout flLoadingInsert;
+    SpinKitView spinKitView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +63,6 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
                 bottomSheetDialog.show(getSupportFragmentManager(), "Bottom Sheet");
             }
         });
-
-        initLoadingAnimation();
     }
 
     @Override
@@ -90,26 +90,21 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
         switch (IdMenu) {
             case R.id.icon_add:
                 InsertKontak();
-                flLoadingInsert.setVisibility(View.VISIBLE);
                 break;
             case android.R.id.home:
                 onBackPressed();
+                break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void InsertKontak() {
-        String strAvatar;
+        final String strAvatar;
         String strNama = edtNama.getText().toString();
         String strNomor = edtNomor.getText().toString();
         String strAlamat = edtAlamat.getText().toString();
-
-        if (mediaPath != null) {
-            uploadImage();
-            strAvatar = file.getName();
-        } else {
-            strAvatar = "";
-        }
 
         if (TextUtils.isEmpty(strNama)) {
             edtNama.setError("Column Can't be Empty");
@@ -118,16 +113,32 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
         } else if (TextUtils.isEmpty(strAlamat)) {
             edtAlamat.setError("Column Can't be Empty");
         } else {
+            showLoadingAnimation();
+
+            if (mediaPath != null) {
+                uploadImage();
+                strAvatar = file.getName();
+            } else {
+                strAvatar = "";
+            }
             Call<PostPutDelKontak> postKontakCall = mApiInterface.postKontak(strNama, strNomor, strAlamat, strAvatar);
             postKontakCall.enqueue(new Callback<PostPutDelKontak>() {
                 @Override
                 public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                     Toast.makeText(getApplicationContext(), "Inserted", Toast.LENGTH_SHORT).show();
+                    if (mediaPath == null) {
+                        hideLoadingAnimation();
+                        MainActivity.ma.refresh();
+                        finish();
+                    }
                 }
 
                 @Override
                 public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                     Toast.makeText(getApplicationContext(), "Error Insert", Toast.LENGTH_SHORT).show();
+                    if (mediaPath == null) {
+                        hideLoadingAnimation();
+                    }
                 }
             });
         }
@@ -144,7 +155,7 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
             @Override
             public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                 Toast.makeText(getApplicationContext(), "Upload Success", Toast.LENGTH_SHORT).show();
-                flLoadingInsert.setVisibility(View.GONE);
+                hideLoadingAnimation();
                 MainActivity.ma.refresh();
                 finish();
             }
@@ -152,6 +163,7 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
             @Override
             public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
+                hideLoadingAnimation();
             }
         });
     }
@@ -165,9 +177,22 @@ public class InsertActivity extends AppCompatActivity implements CustomBottomShe
     }
 
     private void initLoadingAnimation() {
-        ProgressBar progressBar = findViewById(R.id.spin_kit);
+        flLoadingInsert = findViewById(R.id.flLoadingInsert);
+        spinKitView = findViewById(R.id.spin_kit);
+        ProgressBar progressBar = spinKitView;
         Sprite doubleBounce = new Circle();
         progressBar.setIndeterminateDrawable(doubleBounce);
-        flLoadingInsert = findViewById(R.id.flLoadingInsert);
+    }
+
+    private void showLoadingAnimation() {
+        initLoadingAnimation();
+        flLoadingInsert.setVisibility(View.VISIBLE);
+        spinKitView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoadingAnimation() {
+        initLoadingAnimation();
+        flLoadingInsert.setVisibility(View.GONE);
+        spinKitView.setVisibility(View.GONE);
     }
 }
