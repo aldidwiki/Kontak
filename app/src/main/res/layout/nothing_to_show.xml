@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/containerRootNTS"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/nothingToShowLayout"
+        android:id="@+id/nothingToShowImg"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/no_connection" />
+
+    <TextView
+        android:id="@+id/tvNothingToShow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/nothing_to_show" />
+        android:layout_below="@+id/nothingToShowImg"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Oops, Connection Error"
+        android:textColor="@color/flat_grey_normal_2"
+        android:textSize="20sp" />
 
-</LinearLayout>
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/btnRetry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvNothingToShow"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="15dp"
+        android:background="@android:color/transparent"
+        android:text="RETRY"
+        android:textColor="@color/colorPrimary"
+        app:spinning_bar_color="@color/colorPrimaryDark" />
+
+</RelativeLayout>

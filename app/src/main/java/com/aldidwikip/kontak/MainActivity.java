@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +26,7 @@ import com.aldidwikip.kontak.Model.Kontak;
 import com.aldidwikip.kontak.Model.PostPutDelKontak;
 import com.aldidwikip.kontak.Rest.ApiClient;
 import com.aldidwikip.kontak.Rest.ApiInterface;
+import com.aldidwikip.kontak.Utils.NothingToShowFragment;
 import com.faltenreich.skeletonlayout.Skeleton;
 import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     public static MainActivity ma;
     private Skeleton skeleton;
+    Fragment fragment;
+    FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,12 +152,14 @@ public class MainActivity extends AppCompatActivity {
                 mRecyclerView.setAdapter(mAdapter);
 
                 Log.d("Retrofit Get", "Jumlah data Kontak: " + KontakList.size());
+                removeNothingToShowFragment();
             }
 
             @Override
             public void onFailure(@NonNull Call<GetKontak> call, @NonNull Throwable t) {
                 Log.e("Retrofit Get", t.toString());
-                Toast.makeText(getApplicationContext(), "Connection Error", Toast.LENGTH_LONG).show();
+                initNothingToShowFragment();
+                skeleton.showOriginal();
             }
         });
     }
@@ -280,5 +287,27 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<GetKontak> call, @NonNull Throwable t) {
             }
         });
+    }
+
+    public void initNothingToShowFragment() {
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragment = new NothingToShowFragment();
+        fragmentTransaction.replace(R.id.nothingtoShowFragmentContainer, fragment, "NOTHING TO SHOW");
+        fragmentTransaction.commit();
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        btIns.setVisibility(View.INVISIBLE);
+        swipeRefreshLayout.setEnabled(false);
+    }
+
+    public void removeNothingToShowFragment() {
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragment = getSupportFragmentManager().findFragmentByTag("NOTHING TO SHOW");
+        if (fragment != null) {
+            fragmentTransaction.remove(fragment);
+            fragmentTransaction.commit();
+        }
+        mRecyclerView.setVisibility(View.VISIBLE);
+        btIns.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setEnabled(true);
     }
 }

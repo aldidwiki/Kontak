@@ -62,5 +62,11 @@ dependencies {
 
     //Spin Kit Animation
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
+
+    //animation Loading Button
+    implementation 'br.com.simplepass:loading-button-android:2.2.0'
+
+    //fragment Animation
+    implementation 'com.labo.kaji:fragmentanimations:0.1.1'
 }
 
