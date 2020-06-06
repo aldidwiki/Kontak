@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -17,11 +16,10 @@ import com.aldidwikip.kontak.Model.PostPutDelKontak;
 import com.aldidwikip.kontak.Rest.ApiClient;
 import com.aldidwikip.kontak.Rest.ApiInterface;
 import com.aldidwikip.kontak.Utils.CustomBottomSheetDialog;
+import com.aldidwikip.kontak.Utils.ShowLoadingAnimation;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.github.ybq.android.spinkit.SpinKitView;
-import com.github.ybq.android.spinkit.sprite.Sprite;
-import com.github.ybq.android.spinkit.style.Circle;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
@@ -47,6 +45,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
     File file;
     FrameLayout flLoadingEdit;
     SpinKitView spinKitView;
+    ShowLoadingAnimation showLoadingAnimation;
     private Boolean imgRemoved = FALSE;
 
     @Override
@@ -60,6 +59,8 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         edtNomor = findViewById(R.id.edtNomor);
         edtAlamat = findViewById(R.id.edtAlamat);
         avatarView = findViewById(R.id.avatarView);
+        flLoadingEdit = findViewById(R.id.flLoadingEdit);
+        spinKitView = findViewById(R.id.spin_kit);
 
         mIntent = getIntent();
         Id = mIntent.getStringExtra("Id");
@@ -81,6 +82,8 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
                 bottomSheetDialog.show(getSupportFragmentManager(), "Bottom Sheet");
             }
         });
+
+        showLoadingAnimation = new ShowLoadingAnimation(flLoadingEdit, spinKitView);
     }
 
     @Override
@@ -109,6 +112,9 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         switch (IdMenu) {
             case R.id.icon_save:
                 EditKontak();
+                if (showLoadingAnimation.isEnabled()) {
+                    item.setVisible(false);
+                }
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -133,7 +139,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
         } else if (TextUtils.isEmpty(strAlamat)) {
             edtAlamat.setError("Column Can't be Empty");
         } else {
-            showLoadingAnimation();
+            showLoadingAnimation.show(true);
 
             if (mediaPath != null) {
                 uploadImage();
@@ -150,7 +156,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
                 public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                     Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_SHORT).show();
                     if (mediaPath == null || imgRemoved) {
-                        hideLoadingAnimation();
+                        showLoadingAnimation.show(false);
                         MainActivity.ma.refresh();
                         finish();
                     }
@@ -160,7 +166,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
                 public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                     Toast.makeText(getApplicationContext(), "Error Update", Toast.LENGTH_SHORT).show();
                     if (mediaPath == null || imgRemoved) {
-                        hideLoadingAnimation();
+                        showLoadingAnimation.show(false);
                     }
                 }
             });
@@ -178,7 +184,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             @Override
             public void onResponse(Call<PostPutDelKontak> call, Response<PostPutDelKontak> response) {
                 Toast.makeText(getApplicationContext(), "Upload Success", Toast.LENGTH_SHORT).show();
-                hideLoadingAnimation();
+                showLoadingAnimation.show(false);
                 MainActivity.ma.refresh();
                 finish();
             }
@@ -186,7 +192,7 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             @Override
             public void onFailure(Call<PostPutDelKontak> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
-                hideLoadingAnimation();
+                showLoadingAnimation.show(false);
             }
         });
     }
@@ -198,25 +204,5 @@ public class EditActivity extends AppCompatActivity implements CustomBottomSheet
             mediaPath = null;
             imgRemoved = TRUE;
         }
-    }
-
-    private void initLoadingAnimation() {
-        flLoadingEdit = findViewById(R.id.flLoadingEdit);
-        spinKitView = findViewById(R.id.spin_kit);
-        ProgressBar progressBar = spinKitView;
-        Sprite doubleBounce = new Circle();
-        progressBar.setIndeterminateDrawable(doubleBounce);
-    }
-
-    private void showLoadingAnimation() {
-        initLoadingAnimation();
-        flLoadingEdit.setVisibility(View.VISIBLE);
-        spinKitView.setVisibility(View.VISIBLE);
-    }
-
-    private void hideLoadingAnimation() {
-        initLoadingAnimation();
-        flLoadingEdit.setVisibility(View.GONE);
-        spinKitView.setVisibility(View.GONE);
     }
 }

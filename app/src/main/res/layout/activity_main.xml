@@ -2,30 +2,24 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.aldidwikip.kontak.MainActivity">
+    tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/nothingtoShowFragmentContainer"
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    </FrameLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btIns"
@@ -36,5 +30,10 @@
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_add_24dp"
         app:tint="@android:color/white" />
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

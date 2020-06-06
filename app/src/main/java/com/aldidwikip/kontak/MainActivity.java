@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     NoInternetDialog noInternetDialog;
     List<Kontak> KontakList, searchList;
     Boolean swipedHelper = TRUE;
+    SearchView searchView;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     public static MainActivity ma;
@@ -63,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
 
         initRecyclerView();
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void hasActiveConnection(boolean b) {
 //                initSkeleton();
-                refresh();
+//                refresh();
             }
         });
         noInternetDialog = builder.build();
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_search, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
 
-        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("Cari Nama");
         searchView.setIconified(false);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
@@ -243,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemActionExpand(MenuItem item) {
                 swipedHelper = FALSE;
                 mRecyclerView.setVisibility(View.INVISIBLE);
+                removeNothingToShowFragment();
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -272,13 +273,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchKontak(String keyword) {
+        swipeRefreshLayout.setEnabled(false);
         Call<GetKontak> callSearch = mApiInterface.searchKontak(keyword);
         callSearch.enqueue(new Callback<GetKontak>() {
             @Override
             public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
                 assert response.body() != null;
-                mRecyclerView.setVisibility(View.VISIBLE);
                 searchList = response.body().getListDataKontak();
+                mRecyclerView.setVisibility(View.VISIBLE);
                 mAdapter = new KontakAdapter(ma, searchList);
                 mRecyclerView.setAdapter(mAdapter);
             }
@@ -290,11 +292,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initNothingToShowFragment() {
-        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragment = new NothingToShowFragment();
-        fragmentTransaction.replace(R.id.nothingtoShowFragmentContainer, fragment, "NOTHING TO SHOW");
-        fragmentTransaction.commit();
-        mRecyclerView.setVisibility(View.INVISIBLE);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new NothingToShowFragment(), "NOTHING TO SHOW")
+                .commit();
+//        mRecyclerView.setVisibility(View.INVISIBLE);
         btIns.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setEnabled(false);
     }
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
             fragmentTransaction.remove(fragment);
             fragmentTransaction.commit();
         }
-        mRecyclerView.setVisibility(View.VISIBLE);
+//        mRecyclerView.setVisibility(View.VISIBLE);
         btIns.setVisibility(View.VISIBLE);
         swipeRefreshLayout.setEnabled(true);
     }

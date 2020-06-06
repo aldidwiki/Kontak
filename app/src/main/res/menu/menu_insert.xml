@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/icon_add"
+        android:id="@+id/icon_insert"
         android:icon="@drawable/ic_check_24dp"
-        android:title="Add"
+        android:title="Insert"
         app:showAsAction="always" />
 </menu>

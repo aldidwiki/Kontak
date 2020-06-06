@@ -5,7 +5,7 @@
     android:id="@+id/activity_insert"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.aldidwikip.kontak.InsertActivity">
+    tools:context=".InsertActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
