@@ -5,7 +5,10 @@
     android:id="@+id/activity_insert"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".InsertActivity">
+    android:background="@color/white"
+    android:clickable="true"
+    android:focusable="true"
+    tools:context=".activity.InsertActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

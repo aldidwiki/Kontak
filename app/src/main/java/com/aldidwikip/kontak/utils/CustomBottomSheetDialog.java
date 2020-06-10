@@ -1,4 +1,4 @@
-package com.aldidwikip.kontak.Utils;
+package com.aldidwikip.kontak.utils;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -61,7 +61,7 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
 
     @Override
     public void onClick(View v) {
-        String pathName = "/" + "temp_Compressed Image";
+        String pathName = "/temp_Compressed Image";
         File rootPath = new File(String.valueOf(v.getContext().getExternalFilesDir(pathName)));
         switch (v.getId()) {
             case R.id.removePhoto:
@@ -70,14 +70,14 @@ public class CustomBottomSheetDialog extends BottomSheetDialogFragment implement
             case R.id.gallery:
                 ImagePicker.Companion.with(this)
                         .galleryOnly()
-                        .compress(100)
+                        .compress(200)
                         .saveDir(rootPath)
                         .start();
                 break;
             case R.id.camera:
                 ImagePicker.Companion.with(this)
                         .cameraOnly()
-                        .compress(100)
+                        .compress(200)
                         .saveDir(rootPath)
                         .start();
             default:

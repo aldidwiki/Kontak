@@ -1,15 +1,16 @@
-package com.aldidwikip.kontak;
+package com.aldidwikip.kontak.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
@@ -20,13 +21,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.aldidwikip.kontak.Adapter.KontakAdapter;
-import com.aldidwikip.kontak.Model.GetKontak;
-import com.aldidwikip.kontak.Model.Kontak;
-import com.aldidwikip.kontak.Model.PostPutDelKontak;
-import com.aldidwikip.kontak.Rest.ApiClient;
-import com.aldidwikip.kontak.Rest.ApiInterface;
-import com.aldidwikip.kontak.Utils.NothingToShowFragment;
+import com.aldidwikip.kontak.R;
+import com.aldidwikip.kontak.adapter.KontakAdapter;
+import com.aldidwikip.kontak.listener.KontakListener;
+import com.aldidwikip.kontak.model.GetKontak;
+import com.aldidwikip.kontak.model.Kontak;
+import com.aldidwikip.kontak.presenter.MainPresenter;
+import com.aldidwikip.kontak.rest.ApiClient;
+import com.aldidwikip.kontak.rest.ApiInterface;
+import com.aldidwikip.kontak.utils.ConnectionError;
+import com.aldidwikip.kontak.view.MainView;
 import com.faltenreich.skeletonlayout.Skeleton;
 import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -35,51 +39,62 @@ import com.google.android.material.snackbar.Snackbar;
 import org.imaginativeworld.oopsnointernet.ConnectionCallback;
 import org.imaginativeworld.oopsnointernet.NoInternetDialog;
 
-import java.util.List;
-
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainView, KontakListener {
     FloatingActionButton btIns;
     ApiInterface mApiInterface;
     SwipeRefreshLayout swipeRefreshLayout;
     NoInternetDialog noInternetDialog;
-    List<Kontak> KontakList, searchList;
+    GetKontak mKontak;
     Boolean swipedHelper = TRUE;
     SearchView searchView;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    public static MainActivity ma;
-    private Skeleton skeleton;
+    MenuItem searchItem;
     Fragment fragment;
+    TextView tvNothingToShow;
     FragmentTransaction fragmentTransaction;
+    boolean hasBackPressed;
+    private RecyclerView mRecyclerView;
+    private KontakAdapter mAdapter;
+    private Skeleton skeleton;
+    private MainPresenter presenter;
+    private final static int INTENT_TO_INSERT = 10, INTENT_TO_EDIT = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mApiInterface = ApiClient.getClient().create(ApiInterface.class);
+        presenter = new MainPresenter(this, this, mApiInterface);
+
+        tvNothingToShow = findViewById(R.id.tvNothingtoShow);
 
         initRecyclerView();
         initSkeleton();
         initSwipeRefreshLayout();
-        refresh();
 
         btIns = findViewById(R.id.btIns);
         btIns.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, InsertActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, InsertActivity.class), INTENT_TO_INSERT);
             }
         });
+    }
 
-        ma = this;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == INTENT_TO_INSERT || requestCode == INTENT_TO_EDIT) {
+                assert data != null;
+                hasBackPressed = data.getBooleanExtra("hasBackPressed", false);
+            }
+        }
+
     }
 
     @Override
@@ -94,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                presenter.refreshKontak();
             }
         });
         swipeRefreshLayout.setColorSchemeColors(
@@ -105,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
     private void initSkeleton() {
         skeleton = SkeletonLayoutUtils.applySkeleton(mRecyclerView, R.layout.kontak_list, 10);
         skeleton.setShimmerDurationInMillis(1000);
-        skeleton.showSkeleton();
     }
 
     private void initRecyclerView() {
@@ -124,10 +138,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void hasActiveConnection(boolean b) {
 //                initSkeleton();
-//                refresh();
             }
         });
         noInternetDialog = builder.build();
+        if (!hasBackPressed) {
+            presenter.refreshKontak();
+        }
     }
 
     @Override
@@ -136,32 +152,6 @@ public class MainActivity extends AppCompatActivity {
             noInternetDialog.destroy();
         }
         super.onPause();
-    }
-
-    public void refresh() {
-        Call<GetKontak> kontakCall = mApiInterface.getKontak();
-        kontakCall.enqueue(new Callback<GetKontak>() {
-            @Override
-            public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
-                assert response.body() != null;
-                skeleton.showOriginal();
-                swipeRefreshLayout.setRefreshing(false);
-
-                KontakList = response.body().getListDataKontak();
-                mAdapter = new KontakAdapter(ma, KontakList);
-                mRecyclerView.setAdapter(mAdapter);
-
-                Log.d("Retrofit Get", "Jumlah data Kontak: " + KontakList.size());
-                removeNothingToShowFragment();
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<GetKontak> call, @NonNull Throwable t) {
-                Log.e("Retrofit Get", t.toString());
-                initNothingToShowFragment();
-                skeleton.showOriginal();
-            }
-        });
     }
 
     Kontak kontakPosition = null;
@@ -179,15 +169,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             final int position = viewHolder.getAdapterPosition();
-            kontakPosition = KontakList.get(position);
+            kontakPosition = mKontak.getListDataKontak().get(position);
             final String delId = kontakPosition.getId();
-            KontakList.remove(position);
+            mKontak.getListDataKontak().remove(position);
             mAdapter.notifyItemRemoved(position);
             Snackbar snackbar = Snackbar.make(mRecyclerView, "Item Deleted", Snackbar.LENGTH_LONG);
             snackbar.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    KontakList.add(position, kontakPosition);
+                    mKontak.getListDataKontak().add(position, kontakPosition);
                     mAdapter.notifyItemInserted(position);
                 }
             });
@@ -196,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDismissed(Snackbar snackbar, int event) {
                     if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
-                        deleteKontak(delId);
+                        presenter.deleteKontak(delId);
                     }
                 }
             });
@@ -214,46 +204,32 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void deleteKontak(final String delId) {
-        Call<PostPutDelKontak> deleteKontak = mApiInterface.deleteKontak(delId);
-        deleteKontak.enqueue(new Callback<PostPutDelKontak>() {
-            @Override
-            public void onResponse(@NonNull Call<PostPutDelKontak> call, @NonNull Response<PostPutDelKontak> response) {
-                Toast.makeText(getApplicationContext(), "Deleted from Database", Toast.LENGTH_SHORT).show();
-                Log.d("Delete Kontak", delId + "Deleted from DB");
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<PostPutDelKontak> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error Delete", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchItem = menu.findItem(R.id.icon_search);
 
         searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("Cari Nama");
-        searchView.setIconified(false);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 swipedHelper = FALSE;
                 mRecyclerView.setVisibility(View.INVISIBLE);
-                removeNothingToShowFragment();
+                swipeRefreshLayout.setEnabled(false);
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        searchKontak(query);
+                        presenter.searchKontak(query);
+                        swipeRefreshLayout.setEnabled(false);
+                        searchView.clearFocus();
                         return true;
                     }
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        searchKontak(newText);
+                        presenter.searchKontak(newText);
+                        swipeRefreshLayout.setEnabled(false);
                         return true;
                     }
                 });
@@ -263,52 +239,91 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 mRecyclerView.setVisibility(View.VISIBLE);
-                initSkeleton();
-                refresh();
+                swipeRefreshLayout.setEnabled(true);
                 swipedHelper = TRUE;
+                presenter.refreshKontak();
                 return true;
             }
         });
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void searchKontak(String keyword) {
-        swipeRefreshLayout.setEnabled(false);
-        Call<GetKontak> callSearch = mApiInterface.searchKontak(keyword);
-        callSearch.enqueue(new Callback<GetKontak>() {
-            @Override
-            public void onResponse(@NonNull Call<GetKontak> call, @NonNull Response<GetKontak> response) {
-                assert response.body() != null;
-                searchList = response.body().getListDataKontak();
-                mRecyclerView.setVisibility(View.VISIBLE);
-                mAdapter = new KontakAdapter(ma, searchList);
-                mRecyclerView.setAdapter(mAdapter);
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<GetKontak> call, @NonNull Throwable t) {
-            }
-        });
-    }
-
-    public void initNothingToShowFragment() {
+    @Override
+    public void showConnectionError() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new NothingToShowFragment(), "NOTHING TO SHOW")
+                .replace(R.id.fragment_container, new ConnectionError(), "CONNECTION ERROR")
                 .commit();
-//        mRecyclerView.setVisibility(View.INVISIBLE);
         btIns.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setEnabled(false);
     }
 
-    public void removeNothingToShowFragment() {
+    @Override
+    public void hideConnectionError() {
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragment = getSupportFragmentManager().findFragmentByTag("NOTHING TO SHOW");
+        fragment = getSupportFragmentManager().findFragmentByTag("CONNECTION ERROR");
         if (fragment != null) {
             fragmentTransaction.remove(fragment);
             fragmentTransaction.commit();
         }
-//        mRecyclerView.setVisibility(View.VISIBLE);
         btIns.setVisibility(View.VISIBLE);
         swipeRefreshLayout.setEnabled(true);
+    }
+
+    @Override
+    public void showSkeleton() {
+        skeleton.showSkeleton();
+    }
+
+    @Override
+    public void hideSkeleton() {
+        skeleton.showOriginal();
+    }
+
+    @Override
+    public void onKontakLoaded(Context context, GetKontak getKontak) {
+        mAdapter = new KontakAdapter(context, getKontak, this);
+        mRecyclerView.setAdapter(mAdapter);
+        this.mKontak = getKontak;
+
+        if (!searchView.isIconified()) {
+            searchItem.collapseActionView();
+        }
+    }
+
+    @Override
+    public void hideSwipeRefreshLayout() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onKontakSearchResult(Context context, GetKontak getSearchResult) {
+        mAdapter = new KontakAdapter(context, getSearchResult, this);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void showRecyclerView() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showtvNothingToShow() {
+        tvNothingToShow.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hidetvNothingToShow() {
+        tvNothingToShow.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onKontakClicked(@NonNull Kontak kontak) {
+        Intent intentToDetail = new Intent(MainActivity.this, EditActivity.class);
+        intentToDetail.putExtra("Id", kontak.getId());
+        intentToDetail.putExtra("Nama", kontak.getNama());
+        intentToDetail.putExtra("Nomor", kontak.getNomor());
+        intentToDetail.putExtra("Alamat", kontak.getAlamat());
+        intentToDetail.putExtra("Avatar", kontak.getAvatar());
+        startActivityForResult(intentToDetail, INTENT_TO_EDIT);
     }
 }

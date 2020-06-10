@@ -1,4 +1,4 @@
-package com.aldidwikip.kontak.Model;
+package com.aldidwikip.kontak.model;
 
 import com.google.gson.annotations.SerializedName;
 

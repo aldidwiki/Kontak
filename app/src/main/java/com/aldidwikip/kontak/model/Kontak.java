@@ -1,4 +1,4 @@
-package com.aldidwikip.kontak.Model;
+package com.aldidwikip.kontak.model;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -34,31 +34,16 @@ public class Kontak {
         return nama;
     }
 
-    public void setNama(String nama) {
-        this.nama = nama;
-    }
-
     public String getNomor() {
         return nomor;
-    }
-
-    public void setNomor(String nomor) {
-        this.nomor = nomor;
     }
 
     public String getAlamat() {
         return alamat;
     }
 
-    public void setAlamat(String alamat) {
-        this.alamat = alamat;
-    }
-
     public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
 }

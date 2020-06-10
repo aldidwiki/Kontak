@@ -1,6 +1,5 @@
-package com.aldidwikip.kontak.Utils;
+package com.aldidwikip.kontak.utils;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -13,39 +12,61 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.aldidwikip.kontak.EditActivity;
-import com.aldidwikip.kontak.MainActivity;
 import com.aldidwikip.kontak.R;
+import com.aldidwikip.kontak.listener.KontakListener;
+import com.aldidwikip.kontak.model.GetKontak;
+import com.aldidwikip.kontak.model.Kontak;
+import com.aldidwikip.kontak.presenter.MainPresenter;
+import com.aldidwikip.kontak.rest.ApiClient;
+import com.aldidwikip.kontak.rest.ApiInterface;
+import com.aldidwikip.kontak.view.MainView;
 import com.bumptech.glide.Glide;
 
-public class CustomDialog extends DialogFragment implements View.OnClickListener {
+import java.util.Objects;
 
-    private String idKontak, namaKontak, alamatKontak, nomorKontak, avatarKontak;
+public class CustomDialogFragment extends DialogFragment implements View.OnClickListener {
 
-    public static CustomDialog newInstance(String idKontak, String namaKontak, String nomorKontak,
-                                           String alamatKontak, String avatarKontak) {
+    String idKontak, namaKontak, alamatKontak, nomorKontak, avatarKontak;
+    private MainPresenter presenter;
+    private int adapterPosition;
+    private GetKontak mKontak;
+    private KontakListener listener;
 
-        CustomDialog customDialog = new CustomDialog();
+    public static CustomDialogFragment newInstance(Kontak kontak) {
+        CustomDialogFragment customDialogFragment = new CustomDialogFragment();
         Bundle args = new Bundle();
-        args.putString("idKontak", idKontak);
-        args.putString("namaKontak", namaKontak);
-        args.putString("nomorKontak", nomorKontak);
-        args.putString("alamatKontak", alamatKontak);
-        args.putString("avatarKontak", avatarKontak);
-        customDialog.setArguments(args);
+        args.putString("idKontak", kontak.getId());
+        args.putString("namaKontak", kontak.getNama());
+        args.putString("nomorKontak", kontak.getNomor());
+        args.putString("alamatKontak", kontak.getAlamat());
+        args.putString("avatarKontak", kontak.getAvatar());
 
-        return customDialog;
+        customDialogFragment.setArguments(args);
+
+        return customDialogFragment;
+    }
+
+    public void getKontakForEdit(GetKontak getKontak, KontakListener listener, int adapterPosition) {
+        this.mKontak = getKontak;
+        this.listener = listener;
+        this.adapterPosition = adapterPosition;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.custom_dialog, container, false);
+        View view = inflater.inflate(R.layout.custom_dialog, container, false);
+        Objects.requireNonNull(Objects.requireNonNull(getDialog()).getWindow()).setBackgroundDrawableResource(R.drawable.rounded_bg);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ApiInterface mApiInterface = ApiClient.getClient().create(ApiInterface.class);
+        presenter = new MainPresenter(getContext(), (MainView) getContext(), mApiInterface);
+
+        assert getArguments() != null;
         idKontak = getArguments().getString("idKontak");
         namaKontak = getArguments().getString("namaKontak");
         nomorKontak = getArguments().getString("nomorKontak");
@@ -73,23 +94,17 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iconDelete:
-                MainActivity.ma.deleteKontak(idKontak);
+                presenter.deleteKontak(idKontak);
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        MainActivity.ma.refresh();
+                        presenter.refreshKontak();
                     }
                 }, 1000);
                 break;
             case R.id.iconEdit:
-                Intent intent = new Intent(v.getContext(), EditActivity.class);
-                intent.putExtra("Id", idKontak);
-                intent.putExtra("Nama", namaKontak);
-                intent.putExtra("Nomor", nomorKontak);
-                intent.putExtra("Alamat", alamatKontak);
-                intent.putExtra("Avatar", avatarKontak);
-                v.getContext().startActivity(intent);
+                listener.onKontakClicked(mKontak.getListDataKontak().get(adapterPosition));
                 break;
             default:
                 break;

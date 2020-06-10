@@ -1,7 +1,7 @@
-package com.aldidwikip.kontak.Rest;
+package com.aldidwikip.kontak.rest;
 
-import com.aldidwikip.kontak.Model.GetKontak;
-import com.aldidwikip.kontak.Model.PostPutDelKontak;
+import com.aldidwikip.kontak.model.GetKontak;
+import com.aldidwikip.kontak.model.PostPutDelKontak;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;

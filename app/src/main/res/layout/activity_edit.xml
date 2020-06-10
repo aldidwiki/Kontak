@@ -5,7 +5,7 @@
     android:id="@+id/activity_edit"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.aldidwikip.kontak.EditActivity">
+    tools:context="com.aldidwikip.kontak.activity.EditActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

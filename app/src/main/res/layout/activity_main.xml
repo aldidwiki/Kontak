@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context=".activity.MainActivity">
 
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -31,9 +32,20 @@
         app:srcCompat="@drawable/ic_add_24dp"
         app:tint="@android:color/white" />
 
+    <TextView
+        android:id="@+id/tvNothingtoShow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="50dp"
+        android:text="Nothing to Show"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

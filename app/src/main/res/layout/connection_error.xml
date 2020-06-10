@@ -7,17 +7,17 @@
     android:background="@color/white">
 
     <ImageView
-        android:id="@+id/nothingToShowImg"
+        android:id="@+id/connectionErrorImg"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_centerInParent="true"
         android:src="@drawable/no_connection" />
 
     <TextView
-        android:id="@+id/tvNothingToShow"
+        android:id="@+id/tvConnectionError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/nothingToShowImg"
+        android:layout_below="@+id/connectionErrorImg"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:text="Oops, Connection Error"
@@ -28,7 +28,7 @@
         android:id="@+id/btnRetry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvNothingToShow"
+        android:layout_below="@+id/tvConnectionError"
         android:layout_centerHorizontal="true"
         android:layout_margin="15dp"
         android:background="@android:color/transparent"

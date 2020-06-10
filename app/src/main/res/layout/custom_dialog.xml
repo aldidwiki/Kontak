@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#8000"
-        android:paddingStart="15dp"
+        android:paddingStart="20dp"
         android:text="Your Name"
         android:textColor="@color/white"
         android:textSize="16sp" />

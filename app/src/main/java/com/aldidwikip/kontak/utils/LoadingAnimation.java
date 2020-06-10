@@ -1,4 +1,4 @@
-package com.aldidwikip.kontak.Utils;
+package com.aldidwikip.kontak.utils;
 
 import android.view.View;
 import android.widget.FrameLayout;
@@ -8,12 +8,12 @@ import com.github.ybq.android.spinkit.SpinKitView;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.Circle;
 
-public class ShowLoadingAnimation {
+public class LoadingAnimation {
     FrameLayout mFlLoading;
     SpinKitView mSpinKitView;
     boolean mEnabled;
 
-    public ShowLoadingAnimation(FrameLayout flLoadingInsert, SpinKitView spinKitView) {
+    public LoadingAnimation(FrameLayout flLoadingInsert, SpinKitView spinKitView) {
         this.mFlLoading = flLoadingInsert;
         this.mSpinKitView = spinKitView;
     }

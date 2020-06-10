@@ -19,13 +19,13 @@
         android:theme="@style/AppTheme"
         tools:targetApi="Q">
         <activity
-            android:name=".EditActivity"
+            android:name=".activity.EditActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".InsertActivity"
+            android:name=".activity.InsertActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

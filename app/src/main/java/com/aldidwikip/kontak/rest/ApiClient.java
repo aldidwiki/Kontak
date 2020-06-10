@@ -1,4 +1,4 @@
-package com.aldidwikip.kontak.Rest;
+package com.aldidwikip.kontak.rest;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,9 +13,9 @@ public class ApiClient {
     public static Retrofit getClient() {
         if (retrofit == null) {
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(20, TimeUnit.SECONDS)
-                    .writeTimeout(20, TimeUnit.SECONDS)
+                    .connectTimeout(20, TimeUnit.SECONDS)
+                    .readTimeout(15, TimeUnit.SECONDS)
+                    .writeTimeout(15, TimeUnit.SECONDS)
                     .build();
 
             retrofit = new Retrofit.Builder()
