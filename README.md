@@ -1,4 +1,6 @@
 # Kontak
-Simple app using Restful API
+Simple CRUD app using Restful API
 
-This app use Retrofit https://github.com/square/retrofit to parse the JSON
+This app is based on Android using MVP architecture
+
+
